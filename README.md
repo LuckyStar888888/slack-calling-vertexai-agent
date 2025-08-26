@@ -1,4 +1,4 @@
-# AI-Powered Data Analysis Slack Chatbot
+# AI-Powered Data Analysis APP for Slack Chatbot Calling Google VertexAI Agent
 
 A sophisticated Slack chatbot APP that leverages Google Cloud Vertex AI to provide intelligent data analysis capabilities. The bot acts as a data scientist assistant, helping users with data analysis, insights, and CSV generation from the data warehouse in Google Bihquery through natural language requests.
 
@@ -128,6 +128,7 @@ Click Save button.
 Then Go back to Install APP/Reinstall
 
 **(3) Go to your Slack Channel APP**
+
 You can start to test to ask questions from the APP.
 
 **Test the Slack endpoint:**
@@ -245,7 +246,7 @@ curl -X POST https://slack-bot-xxxxx-uc.a.run.app/slack/events \
 
 ### Data Analysis Requests
 
-#### Example Requests
+#### Example Requests based on your data warehouse
 - `"Analyze sales data for Q1 2024"`
 - `"Show me customer demographics"`
 - `"Generate a report on revenue trends"`
