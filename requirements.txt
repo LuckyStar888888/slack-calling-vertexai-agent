@@ -1,0 +1,22 @@
+# Requirements for Slack Chatbot project
+# This file is used to install the necessary packages for the Slack chatbot application.
+
+# Python 
+python-dotenv
+absl-py
+asyncio
+flask
+matplotlib 
+pandas
+plotly
+gunicorn
+
+#slack
+slack-bolt==1.18.0
+slack-sdk 
+
+# Google Cloud and Vertex AI
+google-cloud-secret-manager
+vertexai
+google-cloud-aiplatform
+google-adk==1.6.1
