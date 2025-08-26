@@ -1,6 +1,6 @@
-# Data Scientist - AI-Powered Data Analysis Slack Bot
+# AI-Powered Data Analysis Slack Chatbot
 
-A sophisticated Slack chatbot that leverages Google Cloud Vertex AI to provide intelligent data analysis capabilities. The bot acts as a data scientist assistant, helping users with data analysis, insights, and CSV generation through natural language requests.
+A sophisticated Slack chatbot APP that leverages Google Cloud Vertex AI to provide intelligent data analysis capabilities. The bot acts as a data scientist assistant, helping users with data analysis, insights, and CSV generation from the data warehouse in Google Bihquery through natural language requests.
 
 ## Features
 
@@ -23,13 +23,21 @@ A sophisticated Slack chatbot that leverages Google Cloud Vertex AI to provide i
 
 ### 1. Prerequisites
 
-- Python 3.8+
+- Python 3.12+
 - Google Cloud Platform account with Vertex AI enabled
 - Slack workspace with app permissions
 - Google Cloud CLI (gcloud) installed and configured
 
 ### 2. Install Dependencies
 
+(1) Create a virtue environment (Sugguest to use MiniConda)
+
+```bash
+conda create --name slack_chatbot python=3.12 -y
+conda init
+conda activate slack_chatbot
+```
+(2) Install python libraries
 ```bash
 pip install -r requirements.txt
 ```
@@ -75,7 +83,7 @@ gcloud secrets add-iam-policy-binding your-secret-name --member="serviceAccount:
 
 ### 5. Slack App Configuration
 
-Configure your Slack app with these permissions:
+Configure your Slack app [OAuth & Permissions] with these permissions:
 - `chat:write`
 - `channels:history`
 - `app_mentions:read`
@@ -83,8 +91,21 @@ Configure your Slack app with these permissions:
 - `groups:history`
 - `mpim:history`
 
-For local testing, you can use tools like ngrok to create a public URL:
+### 6. Test Locally
+
+**(1) Run the Flask application locally:**
 ```bash
+python main.py
+```
+
+The app will start on `http://localhost:8080` (or the PORT specified in your environment).
+
+**(2) To get a public URL http using ngrock:**
+
+You can download ngrok from the web [ngrok](https://dashboard.ngrok.com/) to create a public URL:
+
+```bash
+# Use Windows Powershell
 # Install ngrok
 npm install -g ngrok
 
@@ -92,16 +113,22 @@ npm install -g ngrok
 ngrok http 8080
 ```
 
-Set the Event Subscription URL to: `https://your-ngrok-url.ngrok.io/slack/events`
+Then you can get a public tunnel http like: `https://your-ngrok-url.ngrok.io` 
 
-### 6. Test Locally
+Set the Salck APP [Event Subscription]/Request URL  to: `https://your-ngrok-url.ngrok.io/slack/events`
+Configure your Slack app [Event Subscriptions/Subscribe to bot events] with these permissions:
+- `app_mentions:read`
+- `channels:history`
+- `im:history`, `im:read`, `im:write`
+- `groups:history`
+- `mpim:history`
 
-**Run the Flask application:**
-```bash
-python main.py
-```
+Click Save button.
 
-The app will start on `http://localhost:8080` (or the PORT specified in your environment).
+Then Go back to Install APP/Reinstall
+
+**(3) Go to your Slack Channel APP**
+You can start to test to ask questions from the APP.
 
 **Test the Slack endpoint:**
 ```bash
@@ -124,22 +151,6 @@ The app validates Slack request signatures. For testing, you may need to tempora
 
 ### 1. Prepare for Deployment
 
-**Create a Dockerfile:**
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8080
-
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:flask_app"]
-```
-
 **Update main.py for production:**
 Comment out or remove the local development section:
 ```python
@@ -148,7 +159,30 @@ Comment out or remove the local development section:
 #     flask_app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 ```
 
-### 2. Build and Deploy
+### 2. Configure Service Account
+
+**Create a service account with necessary permissions:**
+```bash
+# Create service account
+gcloud iam service-accounts create slack-bot-sa \
+  --display-name="Slack Bot Service Account"
+
+# Grant necessary roles
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+
+# Use the service account for Cloud Run
+gcloud run services update slack-bot \
+  --service-account=slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com \
+  --region=us-central1
+```
+
+### 3. Build and Deploy
 
 **Enable required APIs:**
 ```bash
@@ -173,29 +207,6 @@ gcloud run deploy slack-bot \
   --cpu 2 \
   --timeout 300 \
   --concurrency 80
-```
-
-### 3. Configure Service Account
-
-**Create a service account with necessary permissions:**
-```bash
-# Create service account
-gcloud iam service-accounts create slack-bot-sa \
-  --display-name="Slack Bot Service Account"
-
-# Grant necessary roles
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/secretmanager.secretAccessor"
-
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/aiplatform.user"
-
-# Use the service account for Cloud Run
-gcloud run services update slack-bot \
-  --service-account=slack-bot-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com \
-  --region=us-central1
 ```
 
 ### 4. Update Slack Configuration
